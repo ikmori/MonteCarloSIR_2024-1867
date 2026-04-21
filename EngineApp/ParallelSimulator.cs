@@ -115,7 +115,7 @@ public class ParallelSimulator
     {
         if (day % 5 != 0 && day != _config.Days - 1) return;
 
-        string baseDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../Data"));
+        string baseDir = "/Users/mori/RiderProjects/MonteCarloSIR/Data";
         string dir = Path.Combine(baseDir, runType);
         Directory.CreateDirectory(dir);
         string path = Path.Combine(dir, $"day_{day:D3}.bin");

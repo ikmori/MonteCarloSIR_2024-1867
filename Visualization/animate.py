@@ -14,7 +14,7 @@ if (days - 1) not in frames_list:
 cmap = ListedColormap(['white', 'red', 'gray'])
 
 def load_grid(day, run_type):
-    filepath = f"../Data/{run_type}/day_{day:03d}.bin"
+    filepath = f"/Users/mori/RiderProjects/MonteCarloSIR/Data/{run_type}/day_{day:03d}.bin"
     if os.path.exists(filepath):
         with open(filepath, 'rb') as f:
             data = np.fromfile(f, dtype=np.uint8)
