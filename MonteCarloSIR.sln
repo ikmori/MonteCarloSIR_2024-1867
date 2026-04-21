@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineApp", "EngineApp\EngineApp.csproj", "{18DD6586-0B0D-497B-A2DC-918F67F3A4DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18DD6586-0B0D-497B-A2DC-918F67F3A4DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18DD6586-0B0D-497B-A2DC-918F67F3A4DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18DD6586-0B0D-497B-A2DC-918F67F3A4DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18DD6586-0B0D-497B-A2DC-918F67F3A4DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
