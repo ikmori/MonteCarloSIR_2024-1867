@@ -1,42 +1,58 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
+using EngineApp.ParallelSim;
+using EngineApp.SequentialSim;
 
-namespace EngineApp;
-
-class Program
+namespace EngineApp
 {
-    static void Main(string[] args)
+    class Program
     {
-        var config = new GridConfig();
-
-        Console.WriteLine("Generando datos...");
-        
-        var simSeq = new ParallelSimulator(config);
-        simSeq.Run(1, "Sequential");
-
-        var simPar = new ParallelSimulator(config);
-        simPar.Run(8, "Parallel");
-
-        Console.WriteLine("\nIniciando Benchmark Strong Scaling...");
-        Console.WriteLine("Cores,TimeMs,SpeedUp");
-        
-        int[] coresToTest = { 1, 2, 4, 8 };
-        long baseTime = 0;
-
-        foreach (var cores in coresToTest)
+        static void Main(string[] args)
         {
-            var simulator = new ParallelSimulator(config);
-            var stopwatch = Stopwatch.StartNew();
-            
-            simulator.Run(cores, null);
-            
-            stopwatch.Stop();
-            long timeMs = stopwatch.ElapsedMilliseconds;
+            var config = new GridConfig();
 
-            if (cores == 1) baseTime = timeMs;
+            Console.WriteLine("Generando datos de animación...");
+            
+            var simSeq = new SequentialSimulator(config);
+            simSeq.Run("Sequential");
+            
+            var simPar = new ParallelSimulator(config);
+            simPar.Run(8, "Parallel");
 
-            double speedUp = (double)baseTime / timeMs;
-            Console.WriteLine($"{cores},{timeMs},{speedUp:F2}");
+            Console.WriteLine("\nIniciando Benchmark Strong Scaling...");
+            
+            var csvContent = new StringBuilder();
+            csvContent.AppendLine("Cores,TimeMs,SpeedUp");
+            Console.WriteLine("Cores,TimeMs,SpeedUp");
+            
+            int[] coresToTest = { 1, 2, 4, 8 };
+            long baseTime = 0;
+
+            foreach (var cores in coresToTest)
+            {
+                var simulator = new ParallelSimulator(config);
+                var stopwatch = Stopwatch.StartNew();
+                
+                simulator.Run(cores, null);
+                
+                stopwatch.Stop();
+                long timeMs = stopwatch.ElapsedMilliseconds;
+
+                if (cores == 1) baseTime = timeMs;
+
+                double speedUp = (double)baseTime / timeMs;
+                
+                string resultLine = $"{cores},{timeMs},{speedUp:F2}";
+                Console.WriteLine(resultLine);
+                csvContent.AppendLine(resultLine);
+            }
+
+            string csvPath = "/Users/mori/RiderProjects/MonteCarloSIR/Data/scaling.csv";
+            File.WriteAllText(csvPath, csvContent.ToString());
+            
+            Console.WriteLine($"\n El archivo se guardado en: {csvPath}");
         }
     }
 }

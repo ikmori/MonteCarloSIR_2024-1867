@@ -1,9 +1,4 @@
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace EngineApp;
+namespace EngineApp.ParallelSim;
 public class ParallelSimulator
 {
     private readonly GridConfig _config;
@@ -26,50 +21,43 @@ public class ParallelSimulator
     public void Run(int coreCount, string runType = null)
     {
         var options = new ParallelOptions { MaxDegreeOfParallelism = coreCount };
-        int rowsPerBlock = _config.Size / coreCount;
 
         for (int day = 0; day < _config.Days; day++)
         {
             int totalInfectedToday = 0;
 
-            Parallel.For(0, coreCount, options, blockIndex =>
+            Parallel.For(0, _config.Size, options, i =>
             {
-                int startRow = blockIndex * rowsPerBlock;
-                int endRow = (blockIndex == coreCount - 1) ? _config.Size : startRow + rowsPerBlock;
                 int localInfected = 0;
                 Random threadLocalRand = new Random(Guid.NewGuid().GetHashCode());
 
-                for (int i = startRow; i < endRow; i++)
+                for (int j = 0; j < _config.Size; j++)
                 {
-                    for (int j = 0; j < _config.Size; j++)
+                    _nextGrid[i, j] = _currentGrid[i, j];
+
+                    if (_currentGrid[i, j] == State.Infected)
                     {
-                        _nextGrid[i, j] = _currentGrid[i, j];
+                        double roll = threadLocalRand.NextDouble();
+                        if (roll < _config.RecoveryProb)
+                            _nextGrid[i, j] = State.Removed;
+                        else if (roll < _config.RecoveryProb + _config.DeathProb)
+                            _nextGrid[i, j] = State.Removed;
 
-                        if (_currentGrid[i, j] == State.Infected)
+                        localInfected++;
+                    }
+                    else if (_currentGrid[i, j] == State.Susceptible)
+                    {
+                        int infectedNeighbors = CountInfectedNeighbors(i, j);
+                        if (infectedNeighbors > 0)
                         {
-                            double roll = threadLocalRand.NextDouble();
-                            if (roll < _config.RecoveryProb)
-                                _nextGrid[i, j] = State.Removed;
-                            else if (roll < _config.RecoveryProb + _config.DeathProb)
-                                _nextGrid[i, j] = State.Removed;
-
-                            localInfected++;
-                        }
-                        else if (_currentGrid[i, j] == State.Susceptible)
-                        {
-                            int infectedNeighbors = CountInfectedNeighbors(i, j);
-                            if (infectedNeighbors > 0)
+                            double infectionChance = 1 - Math.Pow(1 - _config.InfectionProb, infectedNeighbors);
+                            if (threadLocalRand.NextDouble() < infectionChance)
                             {
-                                double infectionChance = 1 - Math.Pow(1 - _config.InfectionProb, infectedNeighbors);
-                                if (threadLocalRand.NextDouble() < infectionChance)
-                                {
-                                    _nextGrid[i, j] = State.Infected;
-                                }
+                                _nextGrid[i, j] = State.Infected;
                             }
                         }
                     }
                 }
-
                 Interlocked.Add(ref totalInfectedToday, localInfected);
             });
 
