@@ -1,6 +1,7 @@
 namespace EngineApp;
-
-public class Enums
+public enum State : byte
 {
-    
+    Susceptible = 0,
+    Infected = 1,
+    Removed = 2
 }
